@@ -1,0 +1,29 @@
+# History files
+.Rhistory
+.Rapp.history
+
+# Session Data files
+.RData
+
+# Example code in package build process
+*-Ex.R
+
+# RStudio files
+.Rproj.user/
+
+# produced vignettes
+vignettes/*.html
+vignettes/*.pdf
+*.html
+
+# Jupyter Notebook checkpoints folder
+.ipynb_checkpoints/
+.idea/
+
+# OSX general
+.DS_Store
+.AppleDouble
+.LSOverride
+
+/logs
+.Rproj.user
