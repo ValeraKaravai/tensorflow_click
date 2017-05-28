@@ -14,7 +14,7 @@ CATEGORICAL_COLUMN = [
 
 
 def make_input_schema(mode=tf.contrib.learn.ModeKeys.TRAIN):
-    result = ({} if mode ==tf.contrib.learn.ModeKeys.INFER
+    result = ({} if mode == tf.contrib.learn.ModeKeys.INFER
               else {'clicked': tf.FixedLenFeature(shape=[], dtype=tf.int64)})
     for name in INTEGER_COLUMN:
         result[name] = tf.FixedLenFeature(
@@ -52,7 +52,5 @@ def make_preprocessing_f(frequency_treshold):
     return preprocessing_f
 
 
-
-# import pandas as pd
 
 
