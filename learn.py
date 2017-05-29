@@ -97,7 +97,7 @@ def create_parser():
     parser.add_argument(
         '--ignore_crosses',
         action='store_true',
-        default=False,
+        default=True,
         help='Whether to ignore crosses (linear model only).')
     return parser
 
