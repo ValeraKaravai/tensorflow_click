@@ -2,14 +2,29 @@ import tensorflow as tf
 import tensorflow_transform as tft
 from tensorflow_transform import coders
 from tensorflow_transform.tf_metadata import dataset_schema
+import index_features
+
+
+# integer_column_idx, float_name_idx, categorical_name_idx = index_features.get_index_feature('onclick')
+#
+# INTEGER_COLUMN = [
+#     'int-feature-{}'.format(column_idx) for column_idx in integer_column_idx
+# ]
+#
+#
+# CATEGORICAL_COLUMN = [
+#     'categorical-feature-{}'.format(column_idx) for column_idx in categorical_name_idx
+# ]
+
+integer_column_idx, float_name_idx, categorical_name_idx = index_features.get_index_feature('onclick')
 
 INTEGER_COLUMN = [
-    'int-feature-{}'.format(column_idx) for column_idx in range(1, 14)
+    'int-feature-{}'.format(column_idx) for column_idx in range(1, 2)
 ]
 
 
 CATEGORICAL_COLUMN = [
-    'categorical-feature-{}'.format(column_idx) for column_idx in range(14, 40)
+    'categorical-feature-{}'.format(column_idx) for column_idx in range(2, 4)
 ]
 
 

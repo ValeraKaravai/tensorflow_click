@@ -13,6 +13,7 @@ import random
 import ads
 import path_constants
 
+
 @beam.ptransform_fn
 def _Shuffle(pcoll):
     return (pcoll
@@ -45,16 +46,16 @@ def parse_argument(argv):
 
     parser.add_argument(
         '--training_set',
-        default='data/train_10k.txt',
+        default='data/onclick_train_mod.tsv',
         # required=True,
         help='Training set'
     )
 
     parser.add_argument(
         '--eval_set',
-        default='data/eval_1k.txt',
+        default='data/onclick_test_mod.tsv',
         # required=True,
-        help='Test set'
+        help='Eval set'
     )
 
     parser.add_argument(
@@ -79,6 +80,8 @@ def preprocessing(pipeline, training_set, eval_set, test_set, output_dir, freque
     input_schema = ads.make_input_schema()
 
     coder = ads.make_tsv_coder(input_schema)
+
+    print coder.decode
 
     training_data = (
         pipeline
