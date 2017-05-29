@@ -4,12 +4,12 @@ import json
 import feature_constant
 
 
-def get_index_feature(id_config):
-    db = MySQLdb.connect(user='read_only', passwd='PKNwYXha',
-                         host="dbread.propellerads.com",
-                         db='openx')
+def get_index_feature(name_table, id_config):
+    db = MySQLdb.connect(user='', passwd='',
+                         host="",
+                         db='')
     cur = db.cursor()
-    query = 'SELECT value FROM openx.ox_ecpm_regression_configuration WHERE id = \'%s\'' % id_config
+    query = 'SELECT value FROM %s WHERE id = \'%s\'' % (name_table, id_config)
     cur.execute(query)
     configuration_regression = json_normalize(json.loads(cur.fetchall()[0][0]))
     db.close()
@@ -20,6 +20,8 @@ def get_index_feature(id_config):
     integer_column = []
     float_name = []
     categorical_name = []
+
+    print factors
 
     for i, factor in enumerate(factors):
         if factor in feature_constant.INTEGER_COLUMN_NAME:
@@ -32,4 +34,4 @@ def get_index_feature(id_config):
     return integer_column, float_name, categorical_name
 
 
-integer_column_1, float_name_1, categorical_name_1 = get_index_feature('onclick')
+print get_index_feature('test', 'onclick')
