@@ -13,12 +13,13 @@ import random
 import ads
 import path_constants
 
+
 @beam.ptransform_fn
 def _Shuffle(pcoll):
     return (pcoll
             | 'PairWithRandom' >> beam.Map(lambda x: (random.random(), x))
             | 'GroupByRandom' >> beam.GroupByKey()
-            | 'Droprandom'>> beam.FlatMap(lambda (k, vs):vs))
+            | 'Droprandom' >> beam.FlatMap(lambda (k, vs): vs))
 
 
 def _encode_as_b64_json(serialized_example):
@@ -45,28 +46,28 @@ def parse_argument(argv):
 
     parser.add_argument(
         '--training_set',
-        default='data/train_10k.txt',
-        #required=True,
+        default='data/onclick_train_mod.tsv',
+        # required=True,
         help='Training set'
     )
 
     parser.add_argument(
         '--eval_set',
-        default='data/eval_1k.txt',
-        #required=True,
-        help='Test set'
+        default='data/onclick_test_mod.tsv',
+        # required=True,
+        help='Eval set'
     )
 
     parser.add_argument(
         '--test_set',
-        #required=True,
+        # required=True,
         help='Test set'
     )
 
     parser.add_argument(
         '--output_dir',
         default='output',
-        #required=True,
+        # required=True,
         help='Output directory'
     )
 
@@ -75,27 +76,29 @@ def parse_argument(argv):
     return args
 
 
-def preprocessing(pipline, training_set, eval_set, test_set, output_dir, frequency_treshold):
+def preprocessing(pipeline, training_set, eval_set, test_set, output_dir, frequency_treshold):
     input_schema = ads.make_input_schema()
 
     coder = ads.make_tsv_coder(input_schema)
 
+    print coder.decode
+
     training_data = (
-        pipline
+        pipeline
         | 'ReadTrainingSet' >> beam.io.ReadFromText(training_set)
         | 'ParseTrainingSet' >> beam.Map(coder.decode)
     )
 
     evaluate_data = (
-        pipline
+        pipeline
         | 'ReadEvalData' >> beam.io.ReadFromText(eval_set)
         | 'ParseEvalCsv' >> beam.Map(coder.decode))
 
     input_metadata = dataset_metadata.DatasetMetadata(schema=input_schema)
-    _= (input_metadata
+    _ = (input_metadata
         | 'WriteInputMetadata' >> tft_beam_io.WriteMetadata(
             os.path.join(output_dir, path_constants.RAW_METADATA_DIR),
-            pipeline=pipline))
+            pipeline=pipeline))
 
     preprocessing_f = ads.make_preprocessing_f(frequency_treshold)
     (train_dataset, train_metadata), transform_f = (
@@ -106,7 +109,7 @@ def preprocessing(pipline, training_set, eval_set, test_set, output_dir, frequen
     _ = (transform_f
          | 'WriteTransformFn' >> tft_beam_io.WriteTransformFn(output_dir))
 
-    ##TODO eval dataset
+    # TODO eval dataset
 
     (evaluate_dataset, evaluate_metadata) = (
         ((evaluate_data, input_metadata), transform_f)
@@ -126,24 +129,23 @@ def preprocessing(pipline, training_set, eval_set, test_set, output_dir, frequen
          | 'ShuffleEval' >> _Shuffle()  # pylint: disable=no-value-for-parameter
          | 'WriteEval'
          >> beam.io.WriteToTFRecord(
-        os.path.join(output_dir,
-                     path_constants.TRANSFORMED_EVAL_DATA_FILE_PREFIX),
-        file_name_suffix='.tfrecord.gz'))
+                    os.path.join(output_dir, path_constants.TRANSFORMED_EVAL_DATA_FILE_PREFIX),
+                    file_name_suffix='.tfrecord.gz'))
     if test_set:
         predict_mode = tf.contrib.learn.ModeKeys.INFER
         predict_schema = ads.make_input_schema(mode=predict_mode)
-        tsv_coder = ads.make_tsv_coder(predict_schema, mode = predict_mode)
+        tsv_coder = ads.make_tsv_coder(predict_schema, mode=predict_mode)
         predict_coder = coders.ExampleProtoCoder(predict_schema)
 
         serialized_example = (
-            pipline
+            pipeline
             | 'ReadPredictData' >> beam.io.ReadFromText(test_set)
             | 'ParsePredictCsv' >> beam.Map(tsv_coder.decode)
             | 'EncodePredictData' >> beam.Map(predict_coder.encode))
         _ = (serialized_example
              | 'WritePredictDataAsTFRecord' >> beam.io.WriteToTFRecord(
                     os.path.join(output_dir, path_constants.TRANSFORMED_PREDICT_DATA_FILE_PREFIX),
-                    file_name_suffix ='.tfrecord.gz'))
+                    file_name_suffix='.tfrecord.gz'))
 
         _ = (serialized_example
              | 'EncodePredictAsB64JSON' >> beam.Map(_encode_as_b64_json)
@@ -152,21 +154,19 @@ def preprocessing(pipline, training_set, eval_set, test_set, output_dir, frequen
                     file_name_suffix='.txt'))
 
 
-
 def main(argv=None):
     args = parse_argument(sys.argv if argv is None else argv)
 
-    ##TODO add parameters for cloud
+    # TODO add parameters for cloud
 
-    pipline_name = 'DirectRunner'
-    pipline_options = None
+    pipeline_name = 'DirectRunner'
+    pipeline_options = None
 
     tmp_dir = os.path.join(args.output_dir, 'tmp')
-    with beam.Pipeline(pipline_name, options=pipline_options) as p:
+    with beam.Pipeline(pipeline_name, options=pipeline_options) as p:
         with tft.Context(temp_dir=tmp_dir):
-            preprocessing(pipline=p, training_set=args.training_set, eval_set=args.eval_set, test_set=args.test_set,
+            preprocessing(pipeline=p, training_set=args.training_set, eval_set=args.eval_set, test_set=args.test_set,
                           output_dir=args.output_dir, frequency_treshold=args.frequency_treshold)
-
 
 
 if __name__ == '__main__':
