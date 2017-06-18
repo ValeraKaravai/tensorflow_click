@@ -5,13 +5,13 @@ from tensorflow_transform.beam import impl as tft
 from tensorflow_transform.beam import tft_beam_io
 from tensorflow_transform.tf_metadata import dataset_metadata
 
-import argparse
-import sys
 import os
 import random
 
 import ads
-import path_constants
+import config.path_constants as path_constants
+import config.config_preprocessing as args
+import config.config_constants as config
 
 
 @beam.ptransform_fn
@@ -26,54 +26,6 @@ def _encode_as_b64_json(serialized_example):
     import base64  # pylint: disable=g-import-not-at-top
     import json  # pylint: disable=g-import-not-at-top
     return json.dumps({'b64': base64.b64encode(serialized_example)})
-
-
-def parse_argument(argv):
-    """Parse command line parameters"""
-    parser = argparse.ArgumentParser(
-        description='Runs preprocessing data on the Propeller data model')
-
-    parser.add_argument(
-        '--project_id', help='The project to which the job will be submitted'
-    )
-
-    parser.add_argument(
-        '--frequency_treshold',
-        type=int,
-        default=100,
-        help='The frequency threshold categorical values are'
-    )
-
-    parser.add_argument(
-        '--training_set',
-        default='data/onclick_train_mod.tsv',
-        # required=True,
-        help='Training set'
-    )
-
-    parser.add_argument(
-        '--eval_set',
-        default='data/onclick_test_mod.tsv',
-        # required=True,
-        help='Eval set'
-    )
-
-    parser.add_argument(
-        '--test_set',
-        # required=True,
-        help='Test set'
-    )
-
-    parser.add_argument(
-        '--output_dir',
-        default='output',
-        # required=True,
-        help='Output directory'
-    )
-
-    args, _ = parser.parse_known_args(args=argv[1:])
-
-    return args
 
 
 def preprocessing(pipeline, training_set, eval_set, test_set, output_dir, frequency_treshold):
@@ -155,9 +107,6 @@ def preprocessing(pipeline, training_set, eval_set, test_set, output_dir, freque
 
 
 def main(argv=None):
-    args = parse_argument(sys.argv if argv is None else argv)
-
-    # TODO add parameters for cloud
 
     pipeline_name = 'DirectRunner'
     pipeline_options = None
@@ -165,8 +114,12 @@ def main(argv=None):
     tmp_dir = os.path.join(args.output_dir, 'tmp')
     with beam.Pipeline(pipeline_name, options=pipeline_options) as p:
         with tft.Context(temp_dir=tmp_dir):
-            preprocessing(pipeline=p, training_set=args.training_set, eval_set=args.eval_set, test_set=args.test_set,
-                          output_dir=args.output_dir, frequency_treshold=args.frequency_treshold)
+            preprocessing(pipeline=p,
+                          training_set=args.training_set,
+                          eval_set=args.eval_set,
+                          test_set=args.test_set,
+                          output_dir=args.output_dir,
+                          frequency_treshold=config.FREQUENCY_TRESHOLD)
 
 
 if __name__ == '__main__':
