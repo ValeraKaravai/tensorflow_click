@@ -1,1 +1,4 @@
-*
+# PyCharm Project
+*.pyc
+.idea
+config/*.pyc
