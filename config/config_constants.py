@@ -1,7 +1,7 @@
 # PARAMETERS
 
 # Parameters preprocessing
-ID_CONFIGURATION = 'criteo'
+ID_CONFIGURATION = 'onclick'
 FEATURE_NUM = 4
 INTEGER_COLUMN_NUM = range(1, 2)
 CATEGORICAL_COLUMN_NUM = range(2, 4)
@@ -17,9 +17,9 @@ KEY_FEATURE_COLUMN = 'example_id'
 TARGET_FEATURE_COLUMN = 'clicked'
 
 # Parameters learn (model and column
-batch_size = 30000
-eval_batch_size = 5000
-train_steps = 100
+batch_size = 3000
+eval_batch_size = 500
+train_steps = 1e3
 eval_steps = 100
 num_epochs = 5
 ignore_crosses = True
