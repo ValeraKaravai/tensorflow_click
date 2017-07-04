@@ -1,7 +1,11 @@
 # PARAMETERS
 
 # Parameters preprocessing
+<<<<<<< HEAD
 ID_CONFIGURATION = 'onclick'
+=======
+ID_CONFIGURATION = 'propeller'
+>>>>>>> 77f8080c0098a91e4eea4ea396157d9cc14635ca
 FEATURE_NUM = 4
 INTEGER_COLUMN_NUM = range(1, 2)
 CATEGORICAL_COLUMN_NUM = range(2, 4)
